@@ -7,14 +7,84 @@
         x:Class="Avalonia_Demo_Kanban.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="Avalonia_Demo_Kanban">
+        Title="Kanban Board"
+        Width="900"
+        Height="600">
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
+    <Grid ColumnDefinitions="*,*,*" Margin="16">
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <!-- TODO COLUMN -->
+        <Border Grid.Column="0"
+                Background="#eaecf1"
+                CornerRadius="12"
+                Padding="12"
+                Margin="8">
 
+            <StackPanel>
+                <TextBlock Text="TODO"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Margin="0,0,0,12"/>
+
+                <Border Background="#cdcfda"
+                        CornerRadius="8"
+                        Padding="8"
+                        Margin="0,0,0,8">
+                    <TextBlock Text="Example Task A"/>
+                </Border>
+
+                <Border Background="#cdcfda"
+                        CornerRadius="8"
+                        Padding="8">
+                    <TextBlock Text="Example Task B"/>
+                </Border>
+
+            </StackPanel>
+        </Border>
+
+        <!-- DOING COLUMN -->
+        <Border Grid.Column="1"
+                Background="#eaecf1"
+                CornerRadius="12"
+                Padding="12"
+                Margin="8">
+
+            <StackPanel>
+                <TextBlock Text="DOING"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Margin="0,0,0,12"/>
+
+                <Border Background="#cdcfda"
+                        CornerRadius="8"
+                        Padding="8">
+                    <TextBlock Text="Working on feature"/>
+                </Border>
+            </StackPanel>
+
+        </Border>
+
+        <!-- DONE COLUMN -->
+        <Border Grid.Column="2"
+                Background="#eaecf1"
+                CornerRadius="12"
+                Padding="12"
+                Margin="8">
+
+            <StackPanel>
+                <TextBlock Text="DONE"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Margin="0,0,0,12"/>
+
+                <Border Background="#cdcfda"
+                        CornerRadius="8"
+                        Padding="8">
+                    <TextBlock Text="Initial setup"/>
+                </Border>
+            </StackPanel>
+
+        </Border>
+
+    </Grid>
 </Window>
