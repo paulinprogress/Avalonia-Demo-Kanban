@@ -20,13 +20,17 @@
                 Padding="12"
                 Margin="8">
 
-            <StackPanel>
+            <Grid RowDefinitions="Auto,*,Auto">
+                
+                <!-- Header -->
                 <TextBlock Text="TODO"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           Margin="0,0,0,12"/>
+                        FontSize="18"
+                        FontWeight="Bold"
+                        Margin="0,0,0,12"/>
 
-                <ItemsControl ItemsSource="{Binding TodoTasks}">
+                <!-- Tasks -->
+                <ItemsControl Grid.Row="1"
+                            ItemsSource="{Binding TodoTasks}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Background="#cdcfda"
@@ -39,7 +43,16 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-            </StackPanel>
+                <!-- Add Button -->
+                <Button Grid.Row="2"
+                        Background="#c8d1e7"
+                        Content="+"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Margin="0,8,0,0"
+                        Command="{Binding AddTodoCommand}"/>
+            </Grid>
+
         </Border>
 
         <!-- DOING COLUMN -->
