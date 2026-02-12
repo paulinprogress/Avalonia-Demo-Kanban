@@ -20,7 +20,7 @@
                 Padding="12"
                 Margin="8">
 
-            <Grid RowDefinitions="Auto,*,Auto">
+            <Grid RowDefinitions="Auto,*,Auto,Auto">
                 
                 <!-- Header -->
                 <TextBlock Text="TODO"
@@ -43,8 +43,13 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <!-- Add Button -->
-                <Button Grid.Row="2"
+                <!-- Add Task Button & Textbox -->
+                <TextBox Grid.Row="2"
+                        Margin="0,8,0,0"
+                        Watermark="New task..."
+                        Text="{Binding NewTodoText, Mode=TwoWay}"/>
+
+                <Button Grid.Row="3"
                         Background="#c8d1e7"
                         Content="+"
                         HorizontalAlignment="Stretch"
