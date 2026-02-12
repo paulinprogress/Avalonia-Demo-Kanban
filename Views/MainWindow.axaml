@@ -26,18 +26,18 @@
                            FontWeight="Bold"
                            Margin="0,0,0,12"/>
 
-                <Border Background="#cdcfda"
-                        CornerRadius="8"
-                        Padding="8"
-                        Margin="0,0,0,8">
-                    <TextBlock Text="Example Task A"/>
-                </Border>
-
-                <Border Background="#cdcfda"
-                        CornerRadius="8"
-                        Padding="8">
-                    <TextBlock Text="Example Task B"/>
-                </Border>
+                <ItemsControl ItemsSource="{Binding TodoTasks}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#cdcfda"
+                                    CornerRadius="8"
+                                    Padding="8"
+                                    Margin="0,0,0,8">
+                                <TextBlock Text="{Binding Title}"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
             </StackPanel>
         </Border>
@@ -55,11 +55,19 @@
                            FontWeight="Bold"
                            Margin="0,0,0,12"/>
 
-                <Border Background="#cdcfda"
-                        CornerRadius="8"
-                        Padding="8">
-                    <TextBlock Text="Working on feature"/>
-                </Border>
+                <ItemsControl ItemsSource="{Binding DoingTasks}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#cdcfda"
+                                    CornerRadius="8"
+                                    Padding="8"
+                                    Margin="0,0,0,8">
+                                <TextBlock Text="{Binding Title}"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
             </StackPanel>
 
         </Border>
@@ -77,11 +85,19 @@
                            FontWeight="Bold"
                            Margin="0,0,0,12"/>
 
-                <Border Background="#cdcfda"
-                        CornerRadius="8"
-                        Padding="8">
-                    <TextBlock Text="Initial setup"/>
-                </Border>
+                <ItemsControl ItemsSource="{Binding DoneTasks}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#cdcfda"
+                                    CornerRadius="8"
+                                    Padding="8"
+                                    Margin="0,0,0,8">
+                                <TextBlock Text="{Binding Title}"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
             </StackPanel>
 
         </Border>
