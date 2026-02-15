@@ -11,5 +11,18 @@
   
     <Application.Styles>
         <FluentTheme />
+
+        <Style Selector="Button.add-button,
+                         TextBox.add-textbox">
+            <Setter Property="Opacity" Value="0"/>
+            <Setter Property="Background" Value="#3A3A3A"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+
+        <Style Selector="Border:pointerover Button.add-button,
+                         Border:pointerover TextBox.add-textbox">
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+
     </Application.Styles>
 </Application>
