@@ -25,20 +25,26 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
     }
 
     public ICommand AddTaskCommand { get; }
+    public ICommand RemoveTaskCommand { get; }
 
     public KanbanColumnViewModel(string title)
     {
         Title = title;
         AddTaskCommand = new RelayCommand(AddTask);
+        RemoveTaskCommand = new RelayCommand<TaskItem>(RemoveTask);
     }
 
     private void AddTask()
     {
-        if (string.IsNullOrWhiteSpace(NewTaskText))
-            return;
+        if (string.IsNullOrWhiteSpace(NewTaskText)) return;
 
         Tasks.Add(new TaskItem(NewTaskText));
         NewTaskText = "";
+    }
+
+    private void RemoveTask(TaskItem task)
+    {
+        Tasks.Remove(task);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
