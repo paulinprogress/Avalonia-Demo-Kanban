@@ -11,114 +11,57 @@
         Width="900"
         Height="600">
 
-    <Grid ColumnDefinitions="*,*,*" Margin="16">
+    <ItemsControl ItemsSource="{Binding Columns}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <UniformGrid Columns="3"/>
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
 
-        <!-- TODO COLUMN -->
-        <Border Grid.Column="0"
-                Background="#eaecf1"
-                CornerRadius="12"
-                Padding="12"
-                Margin="8">
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <Border Background="#2A2A2A"
+                        CornerRadius="12"
+                        Padding="12"
+                        Margin="8">
 
-            <Grid RowDefinitions="Auto,*,Auto,Auto">
-                
-                <!-- Header -->
-                <TextBlock Text="TODO"
-                        FontSize="18"
-                        FontWeight="Bold"
-                        Margin="0,0,0,12"/>
+                    <Grid RowDefinitions="Auto,*,Auto,Auto">
 
-                <!-- Tasks -->
-                <ItemsControl Grid.Row="1"
-                            ItemsSource="{Binding TodoTasks}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Background="#cdcfda"
-                                    CornerRadius="8"
-                                    Padding="8"
-                                    Margin="0,0,0,8">
-                                <TextBlock Text="{Binding Title}"/>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                        <TextBlock Text="{Binding Title}"
+                                FontSize="18"
+                                FontWeight="Bold"
+                                Margin="0,0,0,12"/>
 
-                <!-- Add Task Button & Textbox -->
-                <TextBox Grid.Row="2"
-                        Margin="0,8,0,0"
-                        Watermark="New task..."
-                        Text="{Binding NewTodoText, Mode=TwoWay}"/>
+                        <ItemsControl Grid.Row="1"
+                                    ItemsSource="{Binding Tasks}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="#3A3A3A"
+                                            CornerRadius="8"
+                                            Padding="8"
+                                            Margin="0,0,0,8">
+                                        <TextBlock Text="{Binding Title}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
 
-                <Button Grid.Row="3"
-                        Background="#c8d1e7"
-                        Content="+"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Center"
-                        Margin="0,8,0,0"
-                        Command="{Binding AddTodoCommand}"/>
-            </Grid>
+                        <TextBox Grid.Row="2"
+                                Watermark="New task..."
+                                Text="{Binding NewTaskText, Mode=TwoWay}"
+                                Margin="0,8,0,0"/>
 
-        </Border>
+                        <Button Grid.Row="3"
+                                Content="+"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Margin="0,8,0,0"
+                                Command="{Binding AddTaskCommand}"/>
 
-        <!-- DOING COLUMN -->
-        <Border Grid.Column="1"
-                Background="#eaecf1"
-                CornerRadius="12"
-                Padding="12"
-                Margin="8">
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
 
-            <StackPanel>
-                <TextBlock Text="DOING"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           Margin="0,0,0,12"/>
-
-                <ItemsControl ItemsSource="{Binding DoingTasks}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Background="#cdcfda"
-                                    CornerRadius="8"
-                                    Padding="8"
-                                    Margin="0,0,0,8">
-                                <TextBlock Text="{Binding Title}"/>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-
-            </StackPanel>
-
-        </Border>
-
-        <!-- DONE COLUMN -->
-        <Border Grid.Column="2"
-                Background="#eaecf1"
-                CornerRadius="12"
-                Padding="12"
-                Margin="8">
-
-            <StackPanel>
-                <TextBlock Text="DONE"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           Margin="0,0,0,12"/>
-
-                <ItemsControl ItemsSource="{Binding DoneTasks}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Background="#cdcfda"
-                                    CornerRadius="8"
-                                    Padding="8"
-                                    Margin="0,0,0,8">
-                                <TextBlock Text="{Binding Title}"/>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-
-            </StackPanel>
-
-        </Border>
-
-    </Grid>
 </Window>
