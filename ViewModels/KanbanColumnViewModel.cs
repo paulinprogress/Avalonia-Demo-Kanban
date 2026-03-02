@@ -9,6 +9,8 @@ namespace Avalonia_Demo_Kanban.ViewModels;
 
 public class KanbanColumnViewModel : INotifyPropertyChanged
 {
+    private readonly MainWindowViewModel? _owner;
+
     public string Title { get; }
 
     public ObservableCollection<TaskItem> Tasks { get; } = new();
@@ -26,20 +28,58 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
 
     public ICommand AddTaskCommand { get; }
     public ICommand RemoveTaskCommand { get; }
+    public ICommand ShowAddTaskCommand { get; }
+    public ICommand CancelAddTaskCommand { get; }
 
-    public KanbanColumnViewModel(string title)
+    private bool _isAddingTask;
+    public bool IsAddingTask
     {
+        get => _isAddingTask;
+        set
+        {
+            if (_isAddingTask == value) return;
+            _isAddingTask = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public KanbanColumnViewModel(MainWindowViewModel? owner, string title)
+    {
+        _owner = owner;
         Title = title;
         AddTaskCommand = new RelayCommand(AddTask);
         RemoveTaskCommand = new RelayCommand<TaskItem>(RemoveTask);
+        ShowAddTaskCommand = new RelayCommand(ShowAdd);
+        CancelAddTaskCommand = new RelayCommand(CancelAdd);
     }
+
+    private void ShowAdd()
+    {
+        if (_owner != null)
+            _owner.BeginAdding(this);
+        else
+            IsAddingTask = true;
+    }
+
 
     private void AddTask()
     {
-        if (string.IsNullOrWhiteSpace(NewTaskText)) return;
+        if (string.IsNullOrWhiteSpace(NewTaskText))
+        {
+            // if there was nothing to add, just hide the input box
+            IsAddingTask = false;
+            return;
+        }
 
         Tasks.Add(new TaskItem(NewTaskText));
-        NewTaskText = "";
+        NewTaskText = string.Empty;
+        IsAddingTask = false;
+    }
+
+    private void CancelAdd()
+    {
+        NewTaskText = string.Empty;
+        IsAddingTask = false;
     }
 
     private void RemoveTask(TaskItem task)

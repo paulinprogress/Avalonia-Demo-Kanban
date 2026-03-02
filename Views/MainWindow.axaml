@@ -26,7 +26,7 @@
                         Padding="12"
                         Margin="8">
 
-                    <Grid RowDefinitions="Auto,*,Auto,Auto">
+                    <Grid RowDefinitions="Auto,*,Auto">
 
                         <TextBlock Text="{Binding Title}"
                                 FontSize="18"
@@ -49,6 +49,7 @@
                                             <Button Grid.Column="1"
                                                     Content="×"
                                                     Margin="8,0,0,0"
+                                                    CornerRadius="8"
                                                     Background="Transparent"
                                                     Command="{Binding $parent[Border;1].((vm:KanbanColumnViewModel)DataContext).RemoveTaskCommand}}"
                                                     CommandParameter="{Binding}"/>
@@ -59,19 +60,32 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <TextBox Grid.Row="2"
-                                Classes="add-textbox"
-                                Watermark="New task..."
-                                Text="{Binding NewTaskText, Mode=TwoWay}"
-                                Margin="0,8,0,0"/>
-
-                        <Button Grid.Row="3"
+                        <!-- Plus button (visible when not adding) -->
+                        <Button Grid.Row="2"
                                 Classes="add-button"
                                 Content="+"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Center"
                                 Margin="0,8,0,0"
-                                Command="{Binding AddTaskCommand}"/>
+                                Command="{Binding ShowAddTaskCommand}"
+                                IsVisible="{Binding !IsAddingTask}"/>
+
+                        <!-- TextBox and Add button container (visible when adding) -->
+                        <Grid Grid.Row="2"
+                              ColumnDefinitions="*,Auto"
+                              Margin="0,8,0,0"
+                              IsVisible="{Binding IsAddingTask}">
+                            <TextBox Grid.Column="0"
+                                    Classes="add-textbox"
+                                    Watermark="New task..."
+                                    Text="{Binding NewTaskText, Mode=TwoWay}"/>
+                            <Button Grid.Column="1"
+                                    Classes="add-textbox"
+                                    Content="✓"
+                                    Margin="8,0,0,0"
+                                    CornerRadius="8"
+                                    Command="{Binding AddTaskCommand}"/>
+                        </Grid>
 
 
                     </Grid>
