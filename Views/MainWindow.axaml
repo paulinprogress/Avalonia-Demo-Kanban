@@ -45,7 +45,7 @@
                                             Margin="0,0,0,8">
 
                                         <Grid ColumnDefinitions="*,Auto">
-                                            <TextBlock Text="{Binding Title}" Foreground="{DynamicResource ControlForegroundBrush}"/>
+                                            <TextBlock Text="{Binding Title}" Foreground="{DynamicResource ControlForegroundBrush}" TextWrapping="Wrap"/>
 
                                             <!-- Looks for *second* Border element in parents (index 1) to bind RemoveTaskCommand -->
                                             <Button Grid.Column="1"
@@ -83,7 +83,8 @@
                                     CornerRadius="8"
                                     Background="{DynamicResource AddButtonBackgroundBrush}"
                                     Watermark="New task..."
-                                    Text="{Binding NewTaskText, Mode=TwoWay}"/>
+                                    Text="{Binding NewTaskText, Mode=TwoWay}"
+                                    KeyDown="TextBox_KeyDown"/>
                             <Button Grid.Column="1"
                                     Content="✓"
                                     Margin="8,0,0,0"

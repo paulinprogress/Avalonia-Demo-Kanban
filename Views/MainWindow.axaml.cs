@@ -43,6 +43,19 @@ public partial class MainWindow : Window
         }
     }
 
+    private void TextBox_KeyDown(object? sender, KeyEventArgs e)
+    {
+        // Submit task on Enter (without modifiers), allow Shift+Enter for new line
+        if (e.Key == Key.Return && e.KeyModifiers == KeyModifiers.None)
+        {
+            e.Handled = true;
+            if (sender is TextBox textBox && textBox.DataContext is KanbanColumnViewModel vm)
+            {
+                vm.AddTaskCommand.Execute(null);
+            }
+        }
+    }
+
     private bool IsAddControlOrChild(Control control)
     {
         // Check if the control is a TextBox or a Button with "✓" content, or their children
