@@ -22,22 +22,14 @@ public partial class MainWindow : Window
             var source = e.Source as Control;
             if (source != null)
             {
-                // Check if a "+" button was clicked - if so, cancel any existing adding mode first
-                if (IsShowAddButton(source))
-                {
-                    var addingColumn = vm.Columns.FirstOrDefault(c => c.IsAddingTask);
-                    if (addingColumn != null)
-                    {
-                        addingColumn.CancelAddTaskCommand.Execute(null);
-                    }
-                    return; // Allow the click to proceed to the ShowAddTaskCommand
-                }
+                // Check if currently open add task command (exit if not)
+                var addingColumn = vm.Columns.FirstOrDefault(c => c.IsAddingTask);
+                if (addingColumn is null) return;
 
-                // Otherwise, cancel if clicking outside the textbox and submit button
-                var addingColumn2 = vm.Columns.FirstOrDefault(c => c.IsAddingTask);
-                if (addingColumn2 != null && !IsAddControlOrChild(source))
+                // Cancel if PointerPressed source was another add task button (other column) or was outside of current task input (textbox or confirm button)
+                if (IsAddTaskButton(source) || !IsAddTaskInputOrChild(source))
                 {
-                    addingColumn2.CancelAddTaskCommand.Execute(null);
+                    addingColumn.CancelAddTaskCommand.Execute(null);
                 }
             }
         }
@@ -56,7 +48,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private bool IsAddControlOrChild(Control control)
+    private bool IsAddTaskInputOrChild(Control control)
     {
         // Check if the control is a TextBox or a Button with "✓" content, or their children
         if (control is TextBox)
@@ -79,7 +71,7 @@ public partial class MainWindow : Window
         return false;
     }
 
-    private bool IsShowAddButton(Control control)
+    private bool IsAddTaskButton(Control control)
     {
         // Check if this is a "+" add button or a child of one
         if (control is Button button && button.Content?.ToString() == "+")
