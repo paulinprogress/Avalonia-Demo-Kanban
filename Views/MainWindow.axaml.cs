@@ -1,7 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia_Demo_Kanban.ViewModels;
 using System.Linq;
+
+using Avalonia_Demo_Kanban.ViewModels;
 
 namespace Avalonia_Demo_Kanban.Views;
 

@@ -1,9 +1,9 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
-using System.Linq;
 using Avalonia.Markup.Xaml;
+using System.Linq;
+
 using Avalonia_Demo_Kanban.ViewModels;
 using Avalonia_Demo_Kanban.Views;
 
