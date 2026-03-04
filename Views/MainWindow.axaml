@@ -10,7 +10,10 @@
         Title="Kanban Board"
         Width="900"
         Height="600"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Background="{DynamicResource WindowBackgroundBrush}"
+        DragDrop.DragOver="Task_DragOver"
+        DragDrop.Drop="Task_Drop"
+        DragDrop.AllowDrop="True">
 
     <Grid>
         <ItemsControl ItemsSource="{Binding Columns}">
@@ -24,12 +27,11 @@
             <DataTemplate>
                 <Border Name="ColumnRoot"
                     Background="{DynamicResource ColumnBackgroundBrush}"
-                        CornerRadius="12"
-                        Padding="12"
-                        Margin="8"
-                        DragDrop.AllowDrop="True"
-                        DragDrop.DragOver="Column_DragOver"
-                        DragDrop.Drop="Column_Drop">
+                    CornerRadius="12"
+                    Padding="12"
+                    Margin="8"
+                    DragDrop.Drop="Task_Drop"
+                    DragDrop.AllowDrop="True">
 
                     <Grid RowDefinitions="Auto,*,Auto">
 
@@ -80,14 +82,14 @@
                                 Margin="0,8,0,0"
                                 CornerRadius="8"
                                 Background="{DynamicResource AddButtonBackgroundBrush}"
-                                Command="{Binding ShowAddTaskCommand}"
-                                IsVisible="{Binding !IsAddingTask}"/>
+                                Command="{Binding ShowTaskInputCommand}"
+                                IsVisible="{Binding !IsCreatingTask}"/>
 
                         <!-- TextBox and Add button container (visible when adding) -->
                         <Grid Grid.Row="2"
                               ColumnDefinitions="*,Auto"
                               Margin="0,8,0,0"
-                              IsVisible="{Binding IsAddingTask}">
+                              IsVisible="{Binding IsCreatingTask}">
                             <TextBox Grid.Column="0"
                                     CornerRadius="8"
                                     Background="{DynamicResource AddButtonBackgroundBrush}"
@@ -99,7 +101,7 @@
                                     Margin="8,0,0,0"
                                     CornerRadius="8"
                                     Background="{DynamicResource AddButtonBackgroundBrush}"
-                                    Command="{Binding AddTaskCommand}"/>
+                                    Command="{Binding CreateTaskCommand}"/>
                         </Grid>
 
 

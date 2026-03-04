@@ -1,10 +1,7 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia_Demo_Kanban.Models;
 using Avalonia_Demo_Kanban.ViewModels;
@@ -17,8 +14,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        AddHandler(DragDrop.DragOverEvent, Column_DragOver);
-        AddHandler(DragDrop.DropEvent, Column_Drop);
+        AddHandler(DragDrop.DragOverEvent, Task_DragOver);
+        AddHandler(DragDrop.DropEvent, Task_Drop);
 
         // ensure ghost overlay starts hidden
         GhostItem.IsVisible = false;
@@ -34,13 +31,13 @@ public partial class MainWindow : Window
             if (source != null)
             {
                 // Check if currently open add task command (exit if not)
-                var addingColumn = vm.Columns.FirstOrDefault(c => c.IsAddingTask);
+                var addingColumn = vm.Columns.FirstOrDefault(c => c.IsCreatingTask);
                 if (addingColumn is null) return;
 
                 // Cancel if PointerPressed source was another add task button (other column) or was outside of current task input (textbox or confirm button)
                 if (IsAddTaskButton(source) || !IsAddTaskInputOrChild(source))
                 {
-                    addingColumn.CancelAddTaskCommand.Execute(null);
+                    addingColumn.CancelTaskInputCommand.Execute(null);
                 }
             }
         }
@@ -54,7 +51,7 @@ public partial class MainWindow : Window
             e.Handled = true;
             if (sender is TextBox textBox && textBox.DataContext is KanbanColumnViewModel vm)
             {
-                vm.AddTaskCommand.Execute(null);
+                vm.CreateTaskCommand.Execute(null);
             }
         }
     }
@@ -103,94 +100,71 @@ public partial class MainWindow : Window
 
     private async void Task_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (sender is not Border border) return;
-        if (border.DataContext is not TaskItem task) return;
+        if (sender is not Border taskBorder) return;
+        if (taskBorder.DataContext is not TaskItem task) return;
         if (DataContext is not MainWindowViewModel vm) return;
         
         var sourceColumn = vm.Columns.FirstOrDefault(c => c.Tasks.Contains(task));
         if (sourceColumn is null) return;
 
         vm.DraggingTaskItem = task;
+        vm.DragginTaskBorder = taskBorder;
 
         var mousePosition = e.GetPosition(this);
-        var mouseOffset = e.GetPosition(border);
-        
+        var mouseOffset = e.GetPosition(taskBorder);
+
         GhostItem.RenderTransform = new TranslateTransform(mousePosition.X - mouseOffset.X, mousePosition.Y - mouseOffset.Y);
         GhostItem.IsVisible = true;
+
+        GhostItem.Height = taskBorder.Bounds.Height;
+        GhostItem.Width = taskBorder.Bounds.Width;
+
+        taskBorder.IsVisible = false;
 
         // Prepare the DataTransfer
         var dragData = new DataTransfer();
         var dragDataItem0 = DataTransferItem.Create(DataFormat.Text, task.Id);
-        var dragDataItem1 = DataTransferItem.Create(DataFormat.Text, border.Bounds.Height.ToString());
-        var dragDataItem2 = DataTransferItem.Create(DataFormat.Text, border.Bounds.Width.ToString());
-        var dragDataItem3 = DataTransferItem.Create(DataFormat.Text, mouseOffset.X.ToString());
-        var dragDataItem4 = DataTransferItem.Create(DataFormat.Text, mouseOffset.Y.ToString());
+        var dragDataItem1 = DataTransferItem.Create(DataFormat.Text, mouseOffset.X.ToString());
+        var dragDataItem2 = DataTransferItem.Create(DataFormat.Text, mouseOffset.Y.ToString());
         dragData.Add(dragDataItem0);
         dragData.Add(dragDataItem1);
         dragData.Add(dragDataItem2);
-        dragData.Add(dragDataItem3);
-        dragData.Add(dragDataItem4);
 
         // Start DragDrop operation
         await DragDrop.DoDragDropAsync(e, dragData, DragDropEffects.Move);
     }
 
     // While task is being dragged
-    private void Column_DragOver(object? sender, DragEventArgs e)
+    private void Task_DragOver(object? sender, DragEventArgs e)
     {
         if (e.DataTransfer is null) return;
-        if (DataContext is not MainWindowViewModel vm) return;
 
-        // Get task item
-        var taskId = e.DataTransfer.Items[0].TryGetText();
-        var task = vm.GetTaskFromId(taskId);
-
-        // Apply effect
-        if (task is not null)
-        {
-            e.DragEffects = DragDropEffects.Move;
-        }
-        else
-        {
-            e.DragEffects = DragDropEffects.None;
-        }
-
-        // Update ghost item
-        var taskHeight = Convert.ToDouble(e.DataTransfer.Items[1].TryGetText());
-        var taskWidth = Convert.ToDouble(e.DataTransfer.Items[2].TryGetText());
-        GhostItem.Height = taskHeight;
-        GhostItem.Width = taskWidth;
-        
         var mousePosition = e.GetPosition(this);
-        var mouseOffsetX = Convert.ToDouble(e.DataTransfer.Items[3].TryGetText());
-        var mouseOffsetY = Convert.ToDouble(e.DataTransfer.Items[4].TryGetText());
+        var mouseOffsetX = Convert.ToDouble(e.DataTransfer.Items[1].TryGetText());
+        var mouseOffsetY = Convert.ToDouble(e.DataTransfer.Items[2].TryGetText());
         GhostItem.RenderTransform = new TranslateTransform(mousePosition.X - mouseOffsetX, mousePosition.Y - mouseOffsetY);
     }
 
     // When task is dropped
-    private void Column_Drop(object? sender, DragEventArgs e)
+    private void Task_Drop(object? sender, DragEventArgs e)
     {
         if (e.DataTransfer is null) return;
         if (DataContext is not MainWindowViewModel vm) return;
 
-        var taskId = e.DataTransfer.Items.First().TryGetText();
+        var taskId = e.DataTransfer.Items[0].TryGetText();
         var task = vm.GetTaskFromId(taskId);
 
         var source = vm.Columns.FirstOrDefault(c => c.Tasks.Contains(task));
-        var target = (sender as Control)?.DataContext as KanbanColumnViewModel;
+        var target = (sender as Border)?.DataContext as KanbanColumnViewModel;
 
-        if (task == null || source == null || target == null || source == target)
+        if (task != null && source != null && target != null && source != target)
         {
-            // hide ghost even if drop is invalid
-            GhostItem.IsVisible = false;
-            return;
+            source.RemoveTask(task);
+            target.AddTask(task);
         }
 
-        source.RemoveTask(task);
-        target.Tasks.Add(task);
-
-        // hide ghost after successful drop
         GhostItem.IsVisible = false;
+        vm.DragginTaskBorder.IsVisible = true;
     }
 
 }

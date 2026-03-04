@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia_Demo_Kanban.Models;
+using Avalonia.Controls;
 
 namespace Avalonia_Demo_Kanban.ViewModels;
 
@@ -8,7 +9,8 @@ public partial class MainWindowViewModel : ObservableObject
 {
     public ObservableCollection<KanbanColumnViewModel> Columns { get; } = new();
 
-    [ObservableProperty] private TaskItem draggingTaskItem = new TaskItem("");
+    [ObservableProperty] private TaskItem draggingTaskItem = new("");
+    public Border DragginTaskBorder = new();
 
     public MainWindowViewModel()
     {
@@ -18,14 +20,14 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     // Sets the specified column into add-task mode, cancelling any other column that was in that state.
-    public void BeginAdding(KanbanColumnViewModel column)
+    public void BeginCreatingTask(KanbanColumnViewModel column)
     {
         foreach (var c in Columns)
         {
-            c.IsAddingTask = false;
+            c.IsCreatingTask = false;
         }
 
-        column.IsAddingTask = true;
+        column.IsCreatingTask = true;
     }
 
     // Find TaskItem from unique string Id by checking all columns

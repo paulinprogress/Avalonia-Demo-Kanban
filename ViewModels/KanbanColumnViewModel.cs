@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 using Avalonia_Demo_Kanban.Models;
@@ -27,19 +26,19 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
         }
     }
 
-    public ICommand AddTaskCommand { get; }
+    public ICommand CreateTaskCommand { get; }
     public ICommand RemoveTaskCommand { get; }
-    public ICommand ShowAddTaskCommand { get; }
-    public ICommand CancelAddTaskCommand { get; }
+    public ICommand ShowTaskInputCommand { get; }
+    public ICommand CancelTaskInputCommand { get; }
 
-    private bool _isAddingTask;
-    public bool IsAddingTask
+    private bool _isCreatingTask;
+    public bool IsCreatingTask
     {
-        get => _isAddingTask;
+        get => _isCreatingTask;
         set
         {
-            if (_isAddingTask == value) return;
-            _isAddingTask = value;
+            if (_isCreatingTask == value) return;
+            _isCreatingTask = value;
             OnPropertyChanged();
         }
     }
@@ -48,44 +47,48 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
     {
         _owner = owner;
         Title = title;
-        AddTaskCommand = new RelayCommand(AddTask);
+        CreateTaskCommand = new RelayCommand(CreateTask);
         RemoveTaskCommand = new RelayCommand<TaskItem>(RemoveTask);
-        ShowAddTaskCommand = new RelayCommand(ShowAdd);
-        CancelAddTaskCommand = new RelayCommand(CancelAdd);
+        ShowTaskInputCommand = new RelayCommand(ShowInput);
+        CancelTaskInputCommand = new RelayCommand(CancelInput);
     }
 
-    private void ShowAdd()
+    private void ShowInput()
     {
         if (_owner != null)
-            _owner.BeginAdding(this);
+            _owner.BeginCreatingTask(this);
         else
-            IsAddingTask = true;
+            IsCreatingTask = true;
     }
 
 
-    private void AddTask()
+    private void CreateTask()
     {
         // If there was nothing to add, just hide the input box
         if (string.IsNullOrWhiteSpace(NewTaskText))
         {
-            IsAddingTask = false;
+            IsCreatingTask = false;
             return;
         }
 
         // Create new task
-        Tasks.Add(new TaskItem(NewTaskText));
+        AddTask(new TaskItem(NewTaskText));
 
         NewTaskText = string.Empty;
-        IsAddingTask = false;
+        IsCreatingTask = false;
     }
 
-    private void CancelAdd()
+    private void CancelInput()
     {
         NewTaskText = string.Empty;
-        IsAddingTask = false;
+        IsCreatingTask = false;
     }
 
-    // public helper used by drag & drop logic in the view
+    public void AddTask(TaskItem task)
+    {
+        Tasks.Add(task);
+    }
+
     public void RemoveTask(TaskItem task)
     {
         Tasks.Remove(task);
