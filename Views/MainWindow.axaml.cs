@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -111,9 +112,10 @@ public partial class MainWindow : Window
 
         vm.DraggingTaskItem = task;
 
-        var mousePos = e.GetPosition(this);
-        var borderPos = border.Bounds.TopLeft;
-        GhostItem.RenderTransform = new TranslateTransform(borderPos.X, borderPos.Y);
+        var mousePosition = e.GetPosition(this);
+        var mouseOffset = e.GetPosition(border);
+        
+        GhostItem.RenderTransform = new TranslateTransform(mousePosition.X - mouseOffset.X, mousePosition.Y - mouseOffset.Y);
         GhostItem.IsVisible = true;
 
         // Prepare the DataTransfer
@@ -121,17 +123,13 @@ public partial class MainWindow : Window
         var dragDataItem0 = DataTransferItem.Create(DataFormat.Text, task.Id);
         var dragDataItem1 = DataTransferItem.Create(DataFormat.Text, border.Bounds.Height.ToString());
         var dragDataItem2 = DataTransferItem.Create(DataFormat.Text, border.Bounds.Width.ToString());
-        var dragDataItem3 = DataTransferItem.Create(DataFormat.Text, mousePos.X.ToString());
-        var dragDataItem4 = DataTransferItem.Create(DataFormat.Text, mousePos.Y.ToString());
-        var dragDataItem5 = DataTransferItem.Create(DataFormat.Text, borderPos.X.ToString());
-        var dragDataItem6 = DataTransferItem.Create(DataFormat.Text, borderPos.Y.ToString());
+        var dragDataItem3 = DataTransferItem.Create(DataFormat.Text, mouseOffset.X.ToString());
+        var dragDataItem4 = DataTransferItem.Create(DataFormat.Text, mouseOffset.Y.ToString());
         dragData.Add(dragDataItem0);
         dragData.Add(dragDataItem1);
         dragData.Add(dragDataItem2);
         dragData.Add(dragDataItem3);
         dragData.Add(dragDataItem4);
-        dragData.Add(dragDataItem5);
-        dragData.Add(dragDataItem6);
 
         // Start DragDrop operation
         await DragDrop.DoDragDropAsync(e, dragData, DragDropEffects.Move);
@@ -163,14 +161,10 @@ public partial class MainWindow : Window
         GhostItem.Height = taskHeight;
         GhostItem.Width = taskWidth;
         
-        var mousePos = e.GetPosition(this);
-        var originalMousePosX = Convert.ToDouble(e.DataTransfer.Items[3].TryGetText());
-        var originalMousePosY = Convert.ToDouble(e.DataTransfer.Items[4].TryGetText());
-        var originalBorderPosX = Convert.ToDouble(e.DataTransfer.Items[5].TryGetText());
-        var originalBorderPosY = Convert.ToDouble(e.DataTransfer.Items[6].TryGetText());
-        var targetPosX = mousePos.X - originalMousePosX;
-        var targetPosY = mousePos.Y - originalMousePosY;
-        GhostItem.RenderTransform = new TranslateTransform(targetPosX, targetPosY);
+        var mousePosition = e.GetPosition(this);
+        var mouseOffsetX = Convert.ToDouble(e.DataTransfer.Items[3].TryGetText());
+        var mouseOffsetY = Convert.ToDouble(e.DataTransfer.Items[4].TryGetText());
+        GhostItem.RenderTransform = new TranslateTransform(mousePosition.X - mouseOffsetX, mousePosition.Y - mouseOffsetY);
     }
 
     // When task is dropped
