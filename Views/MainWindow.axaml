@@ -115,7 +115,6 @@
                 Background="{DynamicResource TaskBackgroundBrush}"
                 IsVisible="False"
                 IsHitTestVisible="False"
-                Panel.ZIndex="100"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top">
             <TextBlock Text="{Binding DraggingTaskItem.Title}"

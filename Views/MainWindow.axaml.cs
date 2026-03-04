@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -11,8 +12,6 @@ namespace Avalonia_Demo_Kanban.Views;
 
 public partial class MainWindow : Window
 {
-    private readonly Point mouseOffset = new(-10, -10);
-
     public MainWindow()
     {
         InitializeComponent();
@@ -110,17 +109,29 @@ public partial class MainWindow : Window
         var sourceColumn = vm.Columns.FirstOrDefault(c => c.Tasks.Contains(task));
         if (sourceColumn is null) return;
 
-        // Show ghost overlay and bind to the dragged task
         vm.DraggingTaskItem = task;
-        GhostItem.IsVisible = true;
 
         var mousePos = e.GetPosition(this);
-        GhostItem.RenderTransform = new TranslateTransform(mousePos.X + mouseOffset.X, mousePos.Y + mouseOffset.Y);
+        var borderPos = border.Bounds.TopLeft;
+        GhostItem.RenderTransform = new TranslateTransform(borderPos.X, borderPos.Y);
+        GhostItem.IsVisible = true;
 
-        // Prepare the DataTransfer, which will pass the task's unique ID
+        // Prepare the DataTransfer
         var dragData = new DataTransfer();
-        var dragDataItem = DataTransferItem.Create(DataFormat.Text, task.Id);
-        dragData.Add(dragDataItem);
+        var dragDataItem0 = DataTransferItem.Create(DataFormat.Text, task.Id);
+        var dragDataItem1 = DataTransferItem.Create(DataFormat.Text, border.Bounds.Height.ToString());
+        var dragDataItem2 = DataTransferItem.Create(DataFormat.Text, border.Bounds.Width.ToString());
+        var dragDataItem3 = DataTransferItem.Create(DataFormat.Text, mousePos.X.ToString());
+        var dragDataItem4 = DataTransferItem.Create(DataFormat.Text, mousePos.Y.ToString());
+        var dragDataItem5 = DataTransferItem.Create(DataFormat.Text, borderPos.X.ToString());
+        var dragDataItem6 = DataTransferItem.Create(DataFormat.Text, borderPos.Y.ToString());
+        dragData.Add(dragDataItem0);
+        dragData.Add(dragDataItem1);
+        dragData.Add(dragDataItem2);
+        dragData.Add(dragDataItem3);
+        dragData.Add(dragDataItem4);
+        dragData.Add(dragDataItem5);
+        dragData.Add(dragDataItem6);
 
         // Start DragDrop operation
         await DragDrop.DoDragDropAsync(e, dragData, DragDropEffects.Move);
@@ -132,14 +143,11 @@ public partial class MainWindow : Window
         if (e.DataTransfer is null) return;
         if (DataContext is not MainWindowViewModel vm) return;
 
-        // Update ghost item position to follow cursor
-        var currentPosition = e.GetPosition(this);
-        GhostItem.RenderTransform = new TranslateTransform(currentPosition.X + mouseOffset.X, currentPosition.Y + mouseOffset.Y);
-
         // Get task item
-        var taskId = e.DataTransfer.Items.First().TryGetText();
+        var taskId = e.DataTransfer.Items[0].TryGetText();
         var task = vm.GetTaskFromId(taskId);
 
+        // Apply effect
         if (task is not null)
         {
             e.DragEffects = DragDropEffects.Move;
@@ -148,6 +156,21 @@ public partial class MainWindow : Window
         {
             e.DragEffects = DragDropEffects.None;
         }
+
+        // Update ghost item
+        var taskHeight = Convert.ToDouble(e.DataTransfer.Items[1].TryGetText());
+        var taskWidth = Convert.ToDouble(e.DataTransfer.Items[2].TryGetText());
+        GhostItem.Height = taskHeight;
+        GhostItem.Width = taskWidth;
+        
+        var mousePos = e.GetPosition(this);
+        var originalMousePosX = Convert.ToDouble(e.DataTransfer.Items[3].TryGetText());
+        var originalMousePosY = Convert.ToDouble(e.DataTransfer.Items[4].TryGetText());
+        var originalBorderPosX = Convert.ToDouble(e.DataTransfer.Items[5].TryGetText());
+        var originalBorderPosY = Convert.ToDouble(e.DataTransfer.Items[6].TryGetText());
+        var targetPosX = mousePos.X - originalMousePosX;
+        var targetPosY = mousePos.Y - originalMousePosY;
+        GhostItem.RenderTransform = new TranslateTransform(targetPosX, targetPosY);
     }
 
     // When task is dropped
