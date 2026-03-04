@@ -25,7 +25,10 @@
                     Background="{DynamicResource ColumnBackgroundBrush}"
                         CornerRadius="12"
                         Padding="12"
-                        Margin="8">
+                        Margin="8"
+                        DragDrop.AllowDrop="True"
+                        DragDrop.DragOver="Column_DragOver"
+                        DragDrop.Drop="Column_Drop">
 
                     <Grid RowDefinitions="Auto,*,Auto">
 
@@ -39,10 +42,12 @@
                                     ItemsSource="{Binding Tasks}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                        <Border Background="{DynamicResource TaskBackgroundBrush}"
-                                            CornerRadius="8"
-                                            Padding="8"
-                                            Margin="0,0,0,8">
+                                    <!-- Individual task element -->
+                                    <Border Background="{DynamicResource TaskBackgroundBrush}"
+                                        CornerRadius="8"
+                                        Padding="8"
+                                        Margin="0,0,0,8"
+                                        PointerPressed="Task_PointerPressed">
 
                                         <Grid ColumnDefinitions="*,Auto">
                                             <TextBlock Text="{Binding Title}" Foreground="{DynamicResource ControlForegroundBrush}" TextWrapping="Wrap"/>
@@ -56,8 +61,8 @@
                                                     Command="{Binding $parent[Border;1].((vm:KanbanColumnViewModel)DataContext).RemoveTaskCommand}}"
                                                     CommandParameter="{Binding}"/>
                                         </Grid>
-
                                     </Border>
+
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

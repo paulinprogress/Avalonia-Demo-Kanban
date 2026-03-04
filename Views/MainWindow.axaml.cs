@@ -1,7 +1,7 @@
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
-using System.Linq;
-
+using Avalonia_Demo_Kanban.Models;
 using Avalonia_Demo_Kanban.ViewModels;
 
 namespace Avalonia_Demo_Kanban.Views;
@@ -11,6 +11,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
+        AddHandler(DragDrop.DragOverEvent, Column_DragOver);
+        AddHandler(DragDrop.DropEvent, Column_Drop);
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -87,4 +90,63 @@ public partial class MainWindow : Window
 
         return false;
     }
+
+    // --- drag & drop logic ------------------------------------------------
+
+    private async void Task_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is not Border border) return;
+        if (border.DataContext is not TaskItem task) return;
+        if (DataContext is not MainWindowViewModel vm) return;
+        
+        var sourceColumn = vm.Columns.FirstOrDefault(c => c.Tasks.Contains(task));
+        if (sourceColumn is null) return;
+
+        // Prepare the DataTransfer, which will pass the task's unique ID
+        var dragData = new DataTransfer();
+        var dragDataItem = DataTransferItem.Create(DataFormat.Text, task.Id);
+        dragData.Add(dragDataItem);
+
+        // Start DragDrop operation
+        await DragDrop.DoDragDropAsync(e, dragData, DragDropEffects.Move);
+    }
+
+    // While task is being dragged
+    private void Column_DragOver(object? sender, DragEventArgs e)
+    {
+        if (e.DataTransfer is null) return;
+        if (DataContext is not MainWindowViewModel vm) return;
+
+        var taskId = e.DataTransfer.Items.First().TryGetText();
+        var task = vm.GetTaskFromId(taskId);
+
+        if (task is not null)
+        {
+            e.DragEffects = DragDropEffects.Move;
+        }
+        else
+        {
+            e.DragEffects = DragDropEffects.None;
+        }
+    }
+
+    // When task is dropped
+    private void Column_Drop(object? sender, DragEventArgs e)
+    {
+        if (e.DataTransfer is null) return;
+        if (DataContext is not MainWindowViewModel vm) return;
+
+        var taskId = e.DataTransfer.Items.First().TryGetText();
+        var task = vm.GetTaskFromId(taskId);
+
+        var source = vm.Columns.FirstOrDefault(c => c.Tasks.Contains(task));
+        var target = (sender as Control)?.DataContext as KanbanColumnViewModel;
+
+        if (task == null || source == null || target == null || source == target)
+            return;
+
+        source.RemoveTask(task);
+        target.Tasks.Add(task);
+    }
+
 }

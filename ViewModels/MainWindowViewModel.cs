@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Avalonia_Demo_Kanban.Models;
 
 namespace Avalonia_Demo_Kanban.ViewModels;
 
@@ -13,9 +14,7 @@ public class MainWindowViewModel
         Columns.Add(new KanbanColumnViewModel(this, "DONE"));
     }
 
-    /// <summary>
-    /// Sets the specified column into add-task mode, cancelling any other column that was in that state.
-    /// </summary>
+    // Sets the specified column into add-task mode, cancelling any other column that was in that state.
     public void BeginAdding(KanbanColumnViewModel column)
     {
         foreach (var c in Columns)
@@ -25,4 +24,19 @@ public class MainWindowViewModel
 
         column.IsAddingTask = true;
     }
+
+    // Find TaskItem from unique string Id by checking all columns
+    public TaskItem GetTaskFromId(string id)
+    {
+        foreach (KanbanColumnViewModel column in Columns)
+        {
+            foreach (TaskItem task in column.Tasks)
+            {
+                if (task.Id == id) return task;
+            }
+        }
+
+        return null;
+    }
+
 }

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 using Avalonia_Demo_Kanban.Models;
@@ -64,14 +65,16 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
 
     private void AddTask()
     {
+        // If there was nothing to add, just hide the input box
         if (string.IsNullOrWhiteSpace(NewTaskText))
         {
-            // if there was nothing to add, just hide the input box
             IsAddingTask = false;
             return;
         }
 
+        // Create new task
         Tasks.Add(new TaskItem(NewTaskText));
+
         NewTaskText = string.Empty;
         IsAddingTask = false;
     }
@@ -82,7 +85,8 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
         IsAddingTask = false;
     }
 
-    private void RemoveTask(TaskItem task)
+    // public helper used by drag & drop logic in the view
+    public void RemoveTask(TaskItem task)
     {
         Tasks.Remove(task);
     }
