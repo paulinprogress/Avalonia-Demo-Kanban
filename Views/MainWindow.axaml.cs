@@ -131,7 +131,14 @@ public partial class MainWindow : Window
         dragData.Add(dragDataItem2);
 
         // Start DragDrop operation
-        await DragDrop.DoDragDropAsync(e, dragData, DragDropEffects.Move);
+        var effects = await DragDrop.DoDragDropAsync(e, dragData, DragDropEffects.Move);
+
+        // If drag was cancelled or dropped outside, restore the original task visibility
+        if (effects == DragDropEffects.None)
+        {
+            GhostItem.IsVisible = false;
+            taskBorder.IsVisible = true;
+        }
     }
 
     // While task is being dragged
