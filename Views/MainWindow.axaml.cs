@@ -1,6 +1,9 @@
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia_Demo_Kanban.Models;
 using Avalonia_Demo_Kanban.ViewModels;
 
@@ -8,12 +11,17 @@ namespace Avalonia_Demo_Kanban.Views;
 
 public partial class MainWindow : Window
 {
+    private readonly Point mouseOffset = new(-10, -10);
+
     public MainWindow()
     {
         InitializeComponent();
 
         AddHandler(DragDrop.DragOverEvent, Column_DragOver);
         AddHandler(DragDrop.DropEvent, Column_Drop);
+
+        // ensure ghost overlay starts hidden
+        GhostItem.IsVisible = false;
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -102,6 +110,13 @@ public partial class MainWindow : Window
         var sourceColumn = vm.Columns.FirstOrDefault(c => c.Tasks.Contains(task));
         if (sourceColumn is null) return;
 
+        // Show ghost overlay and bind to the dragged task
+        vm.DraggingTaskItem = task;
+        GhostItem.IsVisible = true;
+
+        var mousePos = e.GetPosition(this);
+        GhostItem.RenderTransform = new TranslateTransform(mousePos.X + mouseOffset.X, mousePos.Y + mouseOffset.Y);
+
         // Prepare the DataTransfer, which will pass the task's unique ID
         var dragData = new DataTransfer();
         var dragDataItem = DataTransferItem.Create(DataFormat.Text, task.Id);
@@ -117,6 +132,11 @@ public partial class MainWindow : Window
         if (e.DataTransfer is null) return;
         if (DataContext is not MainWindowViewModel vm) return;
 
+        // Update ghost item position to follow cursor
+        var currentPosition = e.GetPosition(this);
+        GhostItem.RenderTransform = new TranslateTransform(currentPosition.X + mouseOffset.X, currentPosition.Y + mouseOffset.Y);
+
+        // Get task item
         var taskId = e.DataTransfer.Items.First().TryGetText();
         var task = vm.GetTaskFromId(taskId);
 
@@ -143,10 +163,17 @@ public partial class MainWindow : Window
         var target = (sender as Control)?.DataContext as KanbanColumnViewModel;
 
         if (task == null || source == null || target == null || source == target)
+        {
+            // hide ghost even if drop is invalid
+            GhostItem.IsVisible = false;
             return;
+        }
 
         source.RemoveTask(task);
         target.Tasks.Add(task);
+
+        // hide ghost after successful drop
+        GhostItem.IsVisible = false;
     }
 
 }

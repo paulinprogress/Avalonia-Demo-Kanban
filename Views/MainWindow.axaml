@@ -12,7 +12,8 @@
         Height="600"
         Background="{DynamicResource WindowBackgroundBrush}">
 
-    <ItemsControl ItemsSource="{Binding Columns}">
+    <Grid>
+        <ItemsControl ItemsSource="{Binding Columns}">
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
                 <UniformGrid Columns="3"/>
@@ -42,7 +43,8 @@
                                     ItemsSource="{Binding Tasks}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <!-- Individual task element -->
+                                    
+                                    <!-- Task template -->
                                     <Border Background="{DynamicResource TaskBackgroundBrush}"
                                         CornerRadius="8"
                                         Padding="8"
@@ -50,7 +52,9 @@
                                         PointerPressed="Task_PointerPressed">
 
                                         <Grid ColumnDefinitions="*,Auto">
-                                            <TextBlock Text="{Binding Title}" Foreground="{DynamicResource ControlForegroundBrush}" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Title}"
+                                                    TextWrapping="Wrap"
+                                                    Foreground="{DynamicResource ControlForegroundBrush}"/>
 
                                             <!-- Looks for *second* Border element in parents (index 1) to bind RemoveTaskCommand -->
                                             <Button Grid.Column="1"
@@ -103,6 +107,22 @@
                 </Border>
             </DataTemplate>
         </ItemsControl.ItemTemplate>
-    </ItemsControl>
+        </ItemsControl>
+
+        <!-- Ghost task item (overlay) -->
+        <Border Name="GhostItem"
+                CornerRadius="8"
+                Background="{DynamicResource TaskBackgroundBrush}"
+                IsVisible="False"
+                IsHitTestVisible="False"
+                Panel.ZIndex="100"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top">
+            <TextBlock Text="{Binding DraggingTaskItem.Title}"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource ControlForegroundBrush}"
+                       Margin="8"/>
+        </Border>
+    </Grid>
 
 </Window>

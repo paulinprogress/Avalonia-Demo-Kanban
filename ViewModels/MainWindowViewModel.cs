@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia_Demo_Kanban.Models;
 
 namespace Avalonia_Demo_Kanban.ViewModels;
@@ -6,6 +7,8 @@ namespace Avalonia_Demo_Kanban.ViewModels;
 public class MainWindowViewModel
 {
     public ObservableCollection<KanbanColumnViewModel> Columns { get; } = new();
+
+    public TaskItem DraggingTaskItem { get; set; } = new TaskItem("");
 
     public MainWindowViewModel()
     {
