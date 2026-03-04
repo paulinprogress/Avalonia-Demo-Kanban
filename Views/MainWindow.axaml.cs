@@ -1,6 +1,10 @@
+using System;
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia_Demo_Kanban.Models;
 using Avalonia_Demo_Kanban.ViewModels;
 
@@ -14,6 +18,9 @@ public partial class MainWindow : Window
 
         AddHandler(DragDrop.DragOverEvent, Column_DragOver);
         AddHandler(DragDrop.DropEvent, Column_Drop);
+
+        // ensure ghost overlay starts hidden
+        GhostItem.IsVisible = false;
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -102,10 +109,29 @@ public partial class MainWindow : Window
         var sourceColumn = vm.Columns.FirstOrDefault(c => c.Tasks.Contains(task));
         if (sourceColumn is null) return;
 
-        // Prepare the DataTransfer, which will pass the task's unique ID
+        vm.DraggingTaskItem = task;
+
+        var mousePos = e.GetPosition(this);
+        var borderPos = border.Bounds.TopLeft;
+        GhostItem.RenderTransform = new TranslateTransform(borderPos.X, borderPos.Y);
+        GhostItem.IsVisible = true;
+
+        // Prepare the DataTransfer
         var dragData = new DataTransfer();
-        var dragDataItem = DataTransferItem.Create(DataFormat.Text, task.Id);
-        dragData.Add(dragDataItem);
+        var dragDataItem0 = DataTransferItem.Create(DataFormat.Text, task.Id);
+        var dragDataItem1 = DataTransferItem.Create(DataFormat.Text, border.Bounds.Height.ToString());
+        var dragDataItem2 = DataTransferItem.Create(DataFormat.Text, border.Bounds.Width.ToString());
+        var dragDataItem3 = DataTransferItem.Create(DataFormat.Text, mousePos.X.ToString());
+        var dragDataItem4 = DataTransferItem.Create(DataFormat.Text, mousePos.Y.ToString());
+        var dragDataItem5 = DataTransferItem.Create(DataFormat.Text, borderPos.X.ToString());
+        var dragDataItem6 = DataTransferItem.Create(DataFormat.Text, borderPos.Y.ToString());
+        dragData.Add(dragDataItem0);
+        dragData.Add(dragDataItem1);
+        dragData.Add(dragDataItem2);
+        dragData.Add(dragDataItem3);
+        dragData.Add(dragDataItem4);
+        dragData.Add(dragDataItem5);
+        dragData.Add(dragDataItem6);
 
         // Start DragDrop operation
         await DragDrop.DoDragDropAsync(e, dragData, DragDropEffects.Move);
@@ -117,9 +143,11 @@ public partial class MainWindow : Window
         if (e.DataTransfer is null) return;
         if (DataContext is not MainWindowViewModel vm) return;
 
-        var taskId = e.DataTransfer.Items.First().TryGetText();
+        // Get task item
+        var taskId = e.DataTransfer.Items[0].TryGetText();
         var task = vm.GetTaskFromId(taskId);
 
+        // Apply effect
         if (task is not null)
         {
             e.DragEffects = DragDropEffects.Move;
@@ -128,6 +156,21 @@ public partial class MainWindow : Window
         {
             e.DragEffects = DragDropEffects.None;
         }
+
+        // Update ghost item
+        var taskHeight = Convert.ToDouble(e.DataTransfer.Items[1].TryGetText());
+        var taskWidth = Convert.ToDouble(e.DataTransfer.Items[2].TryGetText());
+        GhostItem.Height = taskHeight;
+        GhostItem.Width = taskWidth;
+        
+        var mousePos = e.GetPosition(this);
+        var originalMousePosX = Convert.ToDouble(e.DataTransfer.Items[3].TryGetText());
+        var originalMousePosY = Convert.ToDouble(e.DataTransfer.Items[4].TryGetText());
+        var originalBorderPosX = Convert.ToDouble(e.DataTransfer.Items[5].TryGetText());
+        var originalBorderPosY = Convert.ToDouble(e.DataTransfer.Items[6].TryGetText());
+        var targetPosX = mousePos.X - originalMousePosX;
+        var targetPosY = mousePos.Y - originalMousePosY;
+        GhostItem.RenderTransform = new TranslateTransform(targetPosX, targetPosY);
     }
 
     // When task is dropped
@@ -143,10 +186,17 @@ public partial class MainWindow : Window
         var target = (sender as Control)?.DataContext as KanbanColumnViewModel;
 
         if (task == null || source == null || target == null || source == target)
+        {
+            // hide ghost even if drop is invalid
+            GhostItem.IsVisible = false;
             return;
+        }
 
         source.RemoveTask(task);
         target.Tasks.Add(task);
+
+        // hide ghost after successful drop
+        GhostItem.IsVisible = false;
     }
 
 }
