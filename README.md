@@ -4,7 +4,7 @@ A lightweight Kanban board application built as a demo/test project using [Avalo
 
 ## Running the application
 
-Download the [latest release](/releases/latest) and unzip.
+Download the [latest release](/../../releases/latest) and unzip.
 
 On Windows, simply run the `.exe` file.
 
