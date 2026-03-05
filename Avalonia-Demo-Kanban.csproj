@@ -3,8 +3,22 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+
+    <!-- Cross-platform Runtime Identifiers -->
+    <RuntimeIdentifiers>win-x64;win-x86;linux-x64;linux-arm64;osx-x64;osx-arm64</RuntimeIdentifiers>
+
+    <!-- Windows-specific manifest (only included on Windows) -->
+    <ApplicationManifest Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <!-- Platform-specific property groups for optimization -->
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(RuntimeIdentifier)', 'win'))">
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(RuntimeIdentifier)', 'linux|osx'))">
+    <ApplicationManifest></ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
