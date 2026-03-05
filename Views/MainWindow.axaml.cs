@@ -8,8 +8,14 @@ using Avalonia_Demo_Kanban.ViewModels;
 
 namespace Avalonia_Demo_Kanban.Views;
 
+/// <summary>
+/// Main window for the Kanban board application, handling task interaction and drag-drop operations.
+/// </summary>
 public partial class MainWindow : Window
 {
+    private const string AddTaskButtonContent = "+";
+    private const string ConfirmTaskButtonContent = "✓";
+
     public MainWindow()
     {
         InitializeComponent();
@@ -17,10 +23,11 @@ public partial class MainWindow : Window
         AddHandler(DragDrop.DragOverEvent, Task_DragOver);
         AddHandler(DragDrop.DropEvent, Task_Drop);
 
-        // ensure ghost overlay starts hidden
+        // Ensure ghost overlay starts hidden
         GhostItem.IsVisible = false;
     }
 
+    // Handles pointer press events to cancel task input when clicking outside the input area
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
@@ -30,22 +37,24 @@ public partial class MainWindow : Window
             var source = e.Source as Control;
             if (source != null)
             {
-                // Check if currently open add task command (exit if not)
-                var addingColumn = vm.Columns.FirstOrDefault(c => c.IsCreatingTask);
-                if (addingColumn is null) return;
+                // Check if a column is currently in task creation mode
+                var creatingColumn = vm.Columns.FirstOrDefault(c => c.IsCreatingTask);
+                if (creatingColumn is null) return;
 
-                // Cancel if PointerPressed source was another add task button (other column) or was outside of current task input (textbox or confirm button)
+                // Cancel task input if user clicked another add button or outside the input area
                 if (IsAddTaskButton(source) || !IsAddTaskInputOrChild(source))
                 {
-                    addingColumn.CancelTaskInputCommand.Execute(null);
+                    creatingColumn.CancelTaskInputCommand.Execute(null);
                 }
             }
         }
     }
 
+    // Handles key down events in the task input text box.
+    // Submits the task on Enter (without modifiers), allowing Shift+Enter for new lines.
     private void TextBox_KeyDown(object? sender, KeyEventArgs e)
     {
-        // Submit task on Enter (without modifiers), allow Shift+Enter for new line
+        // Submit task on Enter (without modifiers, allow Shift+Enter for new line)
         if (e.Key == Key.Return && e.KeyModifiers == KeyModifiers.None)
         {
             e.Handled = true;
@@ -56,48 +65,44 @@ public partial class MainWindow : Window
         }
     }
 
+    // Determines if a control is part of the task input area (text box or confirm button) or is a child of one
     private bool IsAddTaskInputOrChild(Control control)
     {
-        // Check if the control is a TextBox or a Button with "✓" content, or their children
-        if (control is TextBox)
-            return true;
-
-        if (control is Button button && button.Content?.ToString() == "✓")
-            return true;
-
-        // Check if this control is a child of a TextBox or submit button
-        var parent = control.Parent;
-        while (parent != null)
-        {
-            if (parent is TextBox)
-                return true;
-            if (parent is Button btn && btn.Content?.ToString() == "✓")
-                return true;
-            parent = parent.Parent;
-        }
-
-        return false;
+        return control is TextBox ||
+               IsButtonWithContent(control, ConfirmTaskButtonContent) ||
+               HasAncestorMatching(control, c => c is TextBox || IsButtonWithContent(c, ConfirmTaskButtonContent));
     }
 
+    // Determines if a control is an "add task" button or is a child of one
     private bool IsAddTaskButton(Control control)
     {
-        // Check if this is a "+" add button or a child of one
-        if (control is Button button && button.Content?.ToString() == "+")
-            return true;
+        return IsButtonWithContent(control, AddTaskButtonContent) ||
+               HasAncestorMatching(control, c => IsButtonWithContent(c, AddTaskButtonContent));
+    }
 
-        var parent = control.Parent;
+    // Checks if a control is a button with the specified content
+    private static bool IsButtonWithContent(Control control, string expectedContent)
+    {
+        return control is Button button && button.Content?.ToString() == expectedContent;
+    }
+
+    // Walks up the parent hierarchy to find an ancestor matching the given predicate
+    private static bool HasAncestorMatching(Control control, Func<Control, bool> predicate)
+    {
+        var parent = control.Parent as Control;
         while (parent != null)
         {
-            if (parent is Button btn && btn.Content?.ToString() == "+")
+            if (predicate(parent))
                 return true;
-            parent = parent.Parent;
+            parent = parent.Parent as Control;
         }
-
         return false;
     }
 
-    // --- drag & drop logic ------------------------------------------------
+    // --- Drag & Drop Logic ------------------------------------------------
 
+    // Handles the start of a drag operation when a task is pressed.
+    // Sets up the ghost image and initiates the drag-drop operation.
     private async void Task_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Border taskBorder) return;
@@ -108,32 +113,30 @@ public partial class MainWindow : Window
         if (sourceColumn is null) return;
 
         vm.DraggingTaskItem = task;
-        vm.DragginTaskBorder = taskBorder;
+        vm.DraggingTaskBorder = taskBorder;
 
         var mousePosition = e.GetPosition(this);
         var mouseOffset = e.GetPosition(taskBorder);
 
+        // Set up ghost item at current mouse position
         GhostItem.RenderTransform = new TranslateTransform(mousePosition.X - mouseOffset.X, mousePosition.Y - mouseOffset.Y);
         GhostItem.IsVisible = true;
-
         GhostItem.Height = taskBorder.Bounds.Height;
         GhostItem.Width = taskBorder.Bounds.Width;
 
+        // Hide original task while dragging
         taskBorder.IsVisible = false;
 
-        // Prepare the DataTransfer
+        // Prepare drag data: task ID and mouse offset for proper positioning during drag
         var dragData = new DataTransfer();
-        var dragDataItem0 = DataTransferItem.Create(DataFormat.Text, task.Id);
-        var dragDataItem1 = DataTransferItem.Create(DataFormat.Text, mouseOffset.X.ToString());
-        var dragDataItem2 = DataTransferItem.Create(DataFormat.Text, mouseOffset.Y.ToString());
-        dragData.Add(dragDataItem0);
-        dragData.Add(dragDataItem1);
-        dragData.Add(dragDataItem2);
+        dragData.Add(DataTransferItem.Create(DataFormat.Text, task.Id));
+        dragData.Add(DataTransferItem.Create(DataFormat.Text, mouseOffset.X.ToString()));
+        dragData.Add(DataTransferItem.Create(DataFormat.Text, mouseOffset.Y.ToString()));
 
-        // Start DragDrop operation
+        // Start the drag-drop operation
         var effects = await DragDrop.DoDragDropAsync(e, dragData, DragDropEffects.Move);
 
-        // If drag was cancelled or dropped outside, restore the original task visibility
+        // Restore original task visibility if drag was cancelled or dropped outside valid target
         if (effects == DragDropEffects.None)
         {
             GhostItem.IsVisible = false;
@@ -141,7 +144,7 @@ public partial class MainWindow : Window
         }
     }
 
-    // While task is being dragged
+    // Handles the drag over event, updating the ghost image position to follow the mouse.
     private void Task_DragOver(object? sender, DragEventArgs e)
     {
         if (e.DataTransfer is null) return;
@@ -152,26 +155,30 @@ public partial class MainWindow : Window
         GhostItem.RenderTransform = new TranslateTransform(mousePosition.X - mouseOffsetX, mousePosition.Y - mouseOffsetY);
     }
 
-    // When task is dropped
+    // Handles the drop event, moving the task to the target column if valid.
     private void Task_Drop(object? sender, DragEventArgs e)
     {
         if (e.DataTransfer is null) return;
         if (DataContext is not MainWindowViewModel vm) return;
 
         var taskId = e.DataTransfer.Items[0].TryGetText();
-        var task = vm.GetTaskFromId(taskId);
-
-        var source = vm.Columns.FirstOrDefault(c => c.Tasks.Contains(task));
-        var target = (sender as Border)?.DataContext as KanbanColumnViewModel;
-
-        if (task != null && source != null && target != null && source != target)
+        if (taskId != null)
         {
-            source.RemoveTask(task);
-            target.AddTask(task);
+            var task = vm.GetTaskFromId(taskId);
+            var sourceColumn = vm.Columns.FirstOrDefault(c => c.Tasks.Contains(task));
+            var targetColumn = (sender as Border)?.DataContext as KanbanColumnViewModel;
+
+            // Move task between columns if source and target are different
+            if (sourceColumn != null && targetColumn != null && sourceColumn != targetColumn)
+            {
+                sourceColumn.RemoveTask(task);
+                targetColumn.AddTask(task);
+            }
         }
 
+        // Clean up drag-drop UI state
         GhostItem.IsVisible = false;
-        vm.DragginTaskBorder.IsVisible = true;
+        vm.DraggingTaskBorder.IsVisible = true;
     }
 
 }

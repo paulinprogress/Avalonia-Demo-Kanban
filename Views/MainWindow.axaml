@@ -25,6 +25,8 @@
 
         <ItemsControl.ItemTemplate>
             <DataTemplate>
+
+                <!-- Column template -->
                 <Border Name="ColumnRoot"
                     Background="{DynamicResource ColumnBackgroundBrush}"
                     CornerRadius="12"
@@ -58,7 +60,7 @@
                                                     TextWrapping="Wrap"
                                                     Foreground="{DynamicResource ControlForegroundBrush}"/>
 
-                                            <!-- Looks for *second* Border element in parents (index 1) to bind RemoveTaskCommand -->
+                                            <!-- Looks for *second* Border element in parents to bind RemoveTaskCommand -->
                                             <Button Grid.Column="1"
                                                     Content="×"
                                                     Margin="8,0,0,0"
@@ -107,6 +109,7 @@
 
                     </Grid>
                 </Border>
+
             </DataTemplate>
         </ItemsControl.ItemTemplate>
         </ItemsControl>

@@ -4,12 +4,15 @@ namespace Avalonia_Demo_Kanban.Models;
 
 public class TaskItem
 {
-    public string Id { get; set; }
-    public string Title { get; set; }
+    private string _id;
+    private string _title;
+
+    public string Id => _id;
+    public string Title => _title;
 
     public TaskItem(string title)
     {
-        Id = Guid.NewGuid().ToString();
-        Title = title;
+        _id = Guid.NewGuid().ToString();
+        _title = title;
     }
 }

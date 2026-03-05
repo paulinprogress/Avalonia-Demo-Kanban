@@ -1,16 +1,22 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Avalonia_Demo_Kanban.Models;
 using Avalonia.Controls;
+
+using Avalonia_Demo_Kanban.Models;
 
 namespace Avalonia_Demo_Kanban.ViewModels;
 
+/// <summary>
+/// Main ViewModel for the whole Kanban board, managing columns and inter-column task operations.
+/// </summary>
 public partial class MainWindowViewModel : ObservableObject
 {
     public ObservableCollection<KanbanColumnViewModel> Columns { get; } = new();
 
-    [ObservableProperty] private TaskItem draggingTaskItem = new("");
-    public Border DragginTaskBorder = new();
+    [ObservableProperty] private TaskItem _draggingTaskItem = new("");
+    public Border DraggingTaskBorder { get; set; } = new();
 
     public MainWindowViewModel()
     {
@@ -19,7 +25,7 @@ public partial class MainWindowViewModel : ObservableObject
         Columns.Add(new KanbanColumnViewModel(this, "DONE"));
     }
 
-    // Sets the specified column into add-task mode, cancelling any other column that was in that state.
+    // Sets the specified column into creating-task mode, cancelling any other column that was in that state.
     public void BeginCreatingTask(KanbanColumnViewModel column)
     {
         foreach (var c in Columns)
@@ -30,18 +36,17 @@ public partial class MainWindowViewModel : ObservableObject
         column.IsCreatingTask = true;
     }
 
-    // Find TaskItem from unique string Id by checking all columns
+    // Retrieves a task by its unique identifier across all columns.
     public TaskItem GetTaskFromId(string id)
     {
-        foreach (KanbanColumnViewModel column in Columns)
-        {
-            foreach (TaskItem task in column.Tasks)
-            {
-                if (task.Id == id) return task;
-            }
-        }
+        var task = Columns
+            .SelectMany(column => column.Tasks)
+            .FirstOrDefault(task => task.Id == id);
 
-        return null;
+        if (task == null)
+            throw new ArgumentException($"Task with ID '{id}' not found.", nameof(id));
+
+        return task;
     }
 
 }

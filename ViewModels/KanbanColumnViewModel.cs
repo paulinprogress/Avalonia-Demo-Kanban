@@ -7,6 +7,9 @@ using Avalonia_Demo_Kanban.Models;
 
 namespace Avalonia_Demo_Kanban.ViewModels;
 
+/// <summary>
+/// Represents a column in the Kanban board, managing tasks and task creation state.
+/// </summary>
 public class KanbanColumnViewModel : INotifyPropertyChanged
 {
     private readonly MainWindowViewModel? _owner;
@@ -14,22 +17,6 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
     public string Title { get; }
 
     public ObservableCollection<TaskItem> Tasks { get; } = new();
-
-    private string _newTaskText = "";
-    public string NewTaskText
-    {
-        get => _newTaskText;
-        set
-        {
-            _newTaskText = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ICommand CreateTaskCommand { get; }
-    public ICommand RemoveTaskCommand { get; }
-    public ICommand ShowTaskInputCommand { get; }
-    public ICommand CancelTaskInputCommand { get; }
 
     private bool _isCreatingTask;
     public bool IsCreatingTask
@@ -43,6 +30,24 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
         }
     }
 
+    private string _newTaskText = "";
+    public string NewTaskText
+    {
+        get => _newTaskText;
+        set
+        {
+            if (_newTaskText == value) return;
+            _newTaskText = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public ICommand CreateTaskCommand { get; }
+    public ICommand RemoveTaskCommand { get; }
+    public ICommand ShowTaskInputCommand { get; }
+    public ICommand CancelTaskInputCommand { get; }
+    
+
     public KanbanColumnViewModel(MainWindowViewModel? owner, string title)
     {
         _owner = owner;
@@ -52,7 +57,7 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
         ShowTaskInputCommand = new RelayCommand(ShowInput);
         CancelTaskInputCommand = new RelayCommand(CancelInput);
     }
-
+    
     private void ShowInput()
     {
         if (_owner != null)
@@ -61,24 +66,24 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
             IsCreatingTask = true;
     }
 
-
     private void CreateTask()
     {
-        // If there was nothing to add, just hide the input box
         if (string.IsNullOrWhiteSpace(NewTaskText))
         {
-            IsCreatingTask = false;
+            HideInput();
             return;
         }
 
-        // Create new task
         AddTask(new TaskItem(NewTaskText));
-
-        NewTaskText = string.Empty;
-        IsCreatingTask = false;
+        HideInput();
     }
 
     private void CancelInput()
+    {
+        HideInput();
+    }
+
+    private void HideInput()
     {
         NewTaskText = string.Empty;
         IsCreatingTask = false;
