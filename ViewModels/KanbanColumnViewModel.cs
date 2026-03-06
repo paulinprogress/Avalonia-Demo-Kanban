@@ -18,6 +18,9 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
 
     public ObservableCollection<TaskItem> Tasks { get; } = new();
 
+    private bool _hasAddTaskButton;
+    public bool HasAddTaskButton => _hasAddTaskButton;
+
     private bool _isCreatingTask;
     public bool IsCreatingTask
     {
@@ -48,10 +51,12 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
     public ICommand CancelTaskInputCommand { get; }
     
 
-    public KanbanColumnViewModel(MainWindowViewModel? owner, string title)
+    public KanbanColumnViewModel(MainWindowViewModel? owner, string title, bool hasAddTaskButton)
     {
         _owner = owner;
         Title = title;
+        _hasAddTaskButton = hasAddTaskButton;
+        
         CreateTaskCommand = new RelayCommand(CreateTask);
         RemoveTaskCommand = new RelayCommand<TaskItem>(RemoveTask);
         ShowTaskInputCommand = new RelayCommand(ShowInput);

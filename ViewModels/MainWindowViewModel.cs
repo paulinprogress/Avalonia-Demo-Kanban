@@ -20,9 +20,9 @@ public partial class MainWindowViewModel : ObservableObject
 
     public MainWindowViewModel()
     {
-        Columns.Add(new KanbanColumnViewModel(this, "TODO"));
-        Columns.Add(new KanbanColumnViewModel(this, "DOING"));
-        Columns.Add(new KanbanColumnViewModel(this, "DONE"));
+        Columns.Add(new KanbanColumnViewModel(this, "TODO", true));
+        Columns.Add(new KanbanColumnViewModel(this, "DOING", false));
+        Columns.Add(new KanbanColumnViewModel(this, "DONE", false));
     }
 
     // Sets the specified column into creating-task mode, cancelling any other column that was in that state.

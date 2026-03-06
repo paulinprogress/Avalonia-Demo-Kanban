@@ -26,16 +26,7 @@
     </Application.Resources>
   
     <Application.Styles>
-        <FluentTheme />
-
-        <Style Selector="Button.add-button">
-            <Setter Property="Opacity" Value="0"/>
-        </Style>
-
-        <Style Selector="Border:pointerover Button.add-button">
-            <Setter Property="Opacity" Value="1"/>
-        </Style>
-
+        <FluentTheme/>
     </Application.Styles>
 
     <Application.DataTemplates>

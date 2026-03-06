@@ -75,23 +75,34 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <!-- Plus button (visible when not adding) -->
+                        <!-- Plus button (visible if column has add button, when not currently adding) -->
                         <Button Grid.Row="2"
-                                Classes="add-button"
                                 Content="+"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Center"
                                 Margin="0,8,0,0"
                                 CornerRadius="8"
                                 Background="{DynamicResource AddButtonBackgroundBrush}"
-                                Command="{Binding ShowTaskInputCommand}"
-                                IsVisible="{Binding !IsCreatingTask}"/>
+                                Command="{Binding ShowTaskInputCommand}">
+                            <Button.IsVisible>
+                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                    <Binding Path="HasAddTaskButton" />
+                                    <Binding Path="!IsCreatingTask" />
+                                </MultiBinding>
+                            </Button.IsVisible>
+                        </Button>
 
-                        <!-- TextBox and Add button container (visible when adding) -->
+                        <!-- TextBox and Add button container (visible if column has add button, when adding) -->
                         <Grid Grid.Row="2"
                               ColumnDefinitions="*,Auto"
-                              Margin="0,8,0,0"
-                              IsVisible="{Binding IsCreatingTask}">
+                              Margin="0,8,0,0">
+                            <Grid.IsVisible>
+                                <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                    <Binding Path="HasAddTaskButton" />
+                                    <Binding Path="IsCreatingTask" />
+                                </MultiBinding>
+                            </Grid.IsVisible>
+
                             <TextBox Grid.Column="0"
                                     CornerRadius="8"
                                     Background="{DynamicResource AddButtonBackgroundBrush}"
