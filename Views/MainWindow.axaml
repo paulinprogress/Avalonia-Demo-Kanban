@@ -44,7 +44,8 @@
                             Foreground="{DynamicResource ControlForegroundBrush}"/>
 
                         <ItemsControl Grid.Row="1"
-                                    ItemsSource="{Binding Tasks}">
+                                    ItemsSource="{Binding Tasks}"
+                                    ClipToBounds="False">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     
@@ -69,6 +70,27 @@
                                                     Command="{Binding $parent[Border;1].((vm:KanbanColumnViewModel)DataContext).RemoveTaskCommand}}"
                                                     CommandParameter="{Binding}"/>
                                         </Grid>
+
+                                        <Border.Styles>
+                                            <!-- Base Style -->
+                                            <Style Selector="Border">
+                                                <Setter Property="RenderTransform" Value="scale(1)" />
+                                                <Setter Property="ZIndex" Value="0" />
+                                                <Setter Property="Transitions">
+                                                    <Transitions>
+                                                        <!-- Smoothly animate the scale over 0.2 seconds -->
+                                                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.2" Easing="CubicEaseOut"/>
+                                                    </Transitions>
+                                                </Setter>
+                                            </Style>
+
+                                            <!-- Hover Style -->
+                                            <Style Selector="Border:pointerover">
+                                                <Setter Property="RenderTransform" Value="scale(1.05)" />
+                                                <Setter Property="ZIndex" Value="10" />
+                                            </Style>
+                                        </Border.Styles>
+
                                     </Border>
 
                                 </DataTemplate>
