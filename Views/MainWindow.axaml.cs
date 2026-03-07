@@ -1,8 +1,11 @@
 using System;
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Avalonia_Demo_Kanban.Models;
 using Avalonia_Demo_Kanban.ViewModels;
 
@@ -25,6 +28,47 @@ public partial class MainWindow : Window
 
         // Ensure ghost overlay starts hidden
         GhostItem.IsVisible = false;
+    }
+
+    // Attaches the FocusTextBoxForColumn function to the property-changed event of IsCreatingTask
+    private void HookColumn(KanbanColumnViewModel col)
+    {
+        col.PropertyChanged += (sender, e) =>
+        {
+            if (e.PropertyName == nameof(KanbanColumnViewModel.IsCreatingTask) && col.IsCreatingTask)
+            {
+                Dispatcher.UIThread.Post(() => FocusTextBoxForColumn(col));
+            }
+        };
+    }
+
+    private void FocusTextBoxForColumn(KanbanColumnViewModel col)
+    {
+        var tb = this.GetVisualDescendants()
+                    .OfType<TextBox>()
+                    .FirstOrDefault(t => t.DataContext == col);
+        tb?.Focus();
+    }
+
+    // Make sure all columns are hooked to FocusTextBoxForColumn via HookColumn
+    protected override void OnDataContextChanged(EventArgs e)
+    {
+        base.OnDataContextChanged(e);
+
+        if (DataContext is MainWindowViewModel vm)
+        {
+            // Hook all existing columns
+            foreach (var col in vm.Columns)
+                HookColumn(col);
+
+            // Watch for new columns added later
+            vm.Columns.CollectionChanged += (sender, e) =>
+            {
+                if (e.NewItems != null)
+                    foreach (KanbanColumnViewModel col in e.NewItems)
+                        HookColumn(col);
+            };
+        }
     }
 
     // Handles pointer press events to cancel task input when clicking outside the input area
@@ -50,11 +94,10 @@ public partial class MainWindow : Window
         }
     }
 
-    // Handles key down events in the task input text box.
-    // Submits the task on Enter (without modifiers), allowing Shift+Enter for new lines.
+    // Handles key down events in the text box
     private void TextBox_KeyDown(object? sender, KeyEventArgs e)
     {
-        // Submit task on Enter (without modifiers, allow Shift+Enter for new line)
+        // Submits task on Enter (without modifiers)
         if (e.Key == Key.Return && e.KeyModifiers == KeyModifiers.None)
         {
             e.Handled = true;

@@ -25,17 +25,6 @@ public partial class MainWindowViewModel : ObservableObject
         Columns.Add(new KanbanColumnViewModel(this, "DONE", false));
     }
 
-    // Sets the specified column into creating-task mode, cancelling any other column that was in that state.
-    public void BeginCreatingTask(KanbanColumnViewModel column)
-    {
-        foreach (var c in Columns)
-        {
-            c.IsCreatingTask = false;
-        }
-
-        column.IsCreatingTask = true;
-    }
-
     // Retrieves a task by its unique identifier across all columns.
     public TaskItem GetTaskFromId(string id)
     {

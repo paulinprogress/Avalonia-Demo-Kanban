@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-
 using Avalonia_Demo_Kanban.Models;
 
 namespace Avalonia_Demo_Kanban.ViewModels;
@@ -56,7 +55,7 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
         _owner = owner;
         Title = title;
         _hasAddTaskButton = hasAddTaskButton;
-        
+
         CreateTaskCommand = new RelayCommand(CreateTask);
         RemoveTaskCommand = new RelayCommand<TaskItem>(RemoveTask);
         ShowTaskInputCommand = new RelayCommand(ShowInput);
@@ -66,9 +65,16 @@ public class KanbanColumnViewModel : INotifyPropertyChanged
     private void ShowInput()
     {
         if (_owner != null)
-            _owner.BeginCreatingTask(this);
-        else
-            IsCreatingTask = true;
+        {
+            // Turn IsCreatingTask to false for all columns
+            foreach (var c in _owner.Columns)
+            {
+                c.IsCreatingTask = false;
+            }
+        }
+        // Turn it true for this column
+        IsCreatingTask = true;
+
     }
 
     private void CreateTask()

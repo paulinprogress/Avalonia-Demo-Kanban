@@ -12,6 +12,7 @@
                     <SolidColorBrush x:Key="ColumnBackgroundBrush" Color="#F1F1F1"/>
                     <SolidColorBrush x:Key="TaskBackgroundBrush" Color="#FFFFFF"/>
                     <SolidColorBrush x:Key="AddButtonBackgroundBrush" Color="#E8E8E8"/>
+                    <SolidColorBrush x:Key="AddTextBoxFocusBrush" Color="#5a60d4"/>
                     <SolidColorBrush x:Key="ControlForegroundBrush" Color="#0E0E0E"/>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key='Dark'>
@@ -19,6 +20,7 @@
                     <SolidColorBrush x:Key="ColumnBackgroundBrush" Color="#2A2A2A"/>
                     <SolidColorBrush x:Key="TaskBackgroundBrush" Color="#3A3A3A"/>
                     <SolidColorBrush x:Key="AddButtonBackgroundBrush" Color="#3A3A3A"/>
+                    <SolidColorBrush x:Key="AddTextBoxFocusBrush" Color="#5a60d4"/>
                     <SolidColorBrush x:Key="ControlForegroundBrush" Color="#EFEFEF"/>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>

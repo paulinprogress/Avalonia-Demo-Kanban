@@ -16,7 +16,7 @@
         DragDrop.AllowDrop="True">
 
     <Grid>
-        <ItemsControl ItemsSource="{Binding Columns}">
+        <ItemsControl x:Name="ColumnsControl" ItemsSource="{Binding Columns}">
         <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
                 <UniformGrid Columns="3"/>
@@ -124,13 +124,21 @@
                                     <Binding Path="IsCreatingTask" />
                                 </MultiBinding>
                             </Grid.IsVisible>
-
-                            <TextBox Grid.Column="0"
+                            
+                            
+                            <TextBox x:Name="NewTaskTextBox"
+                                    Grid.Column="0"
                                     CornerRadius="8"
                                     Background="{DynamicResource AddButtonBackgroundBrush}"
                                     Watermark="New task..."
                                     Text="{Binding NewTaskText, Mode=TwoWay}"
-                                    KeyDown="TextBox_KeyDown"/>
+                                    KeyDown="TextBox_KeyDown">
+                                <TextBox.Styles>
+                                    <Style Selector="TextBox:focus">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource AddTextBoxFocusBrush}"/>
+                                    </Style>
+                                </TextBox.Styles>
+                            </TextBox>
                             <Button Grid.Column="1"
                                     Content="✓"
                                     Margin="8,0,0,0"
