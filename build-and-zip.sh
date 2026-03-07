@@ -26,7 +26,7 @@ for RID in "${RIDS[@]}"; do
     fi
 
     # Create zip archive
-    ZIP_NAME="${PROJECT_NAME}-${RID}.zip"
+    ZIP_NAME="${PROJECT_NAME}_${RID}.zip"
     echo "Creating ${ZIP_NAME}..."
     cd "${OUTPUT_DIR}"
     zip -r -j "${ZIP_NAME}" "${RID}/publish/"
