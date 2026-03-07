@@ -2,6 +2,8 @@
 
 A lightweight Kanban board application built as a demo/test project using [Avalonia](https://avaloniaui.net/) (11.3.11), a cross-platform .NET UI framework. Focus on drag-and-drop interactions and MVVM architecture.
 
+![](Assets/demo-image.webp)
+
 ## Running the application
 
 Download the [latest release](/../../releases/latest) and unzip.
