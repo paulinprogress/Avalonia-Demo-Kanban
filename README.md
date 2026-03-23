@@ -20,7 +20,7 @@ chmod +x Avalonia-Demo-Kanban
 
 ## Cloning the project
 
-Prerequisite: .NET 9.0 or newer
+Prerequisite: .NET 9.0
 
 Build & run with:
 
